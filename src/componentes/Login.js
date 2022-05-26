@@ -1,17 +1,56 @@
 import styled from "styled-components";
-import { Link } from "react-router-dom";
+import { useState, useContext } from "react";
+import { Link,useNavigate } from "react-router-dom";
+import { ThreeDots } from "react-loader-spinner";
+import axios from "axios";
+import UserContext from "../context/UserContext";
+
 import logo from '../assets/logo.svg';
 
+
 const Login = () => {
+    const [values, setValues] = useState({ email: '', password: '' });
+    const [loading, setLoading] = useState(false);
+    const {setUserInfo} = useContext(UserContext);
+    let navigate = useNavigate();
+
+    const handleChange = (e) => {
+        setValues({...values, [e.target.name]: e.target.value});
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        setLoading(true);
+        async function userLogin() {
+            try {
+                const resp = await axios.post('https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/auth/login',values);
+                setUserInfo(resp.data);
+                navigate('../hoje', {replace: true});
+
+            } catch (err) {
+                switch(err.response.status) {
+                    case 401:   
+                        alert('O email ou a senha digitada estão incorretos');
+                        break;
+                    default:
+                        alert('Um erro desconhecido ocorreu, tente novamente!');
+                        break;
+                }
+                setLoading(false);
+            }
+        }
+        userLogin();
+    };
     return (
         <Container>
             <img src={logo} alt="Tracklt"></img>
 
-            <LoginForm>
+            <LoginForm onSubmit={handleSubmit}>
 
-                <input type='text' placeholder="email" required></input>
-                <input type='password' placeholder="senha" required></input>
-                <button type="submit">Entrar</button>
+                <input type='email' disabled={loading} name="email" value={values.email} onChange={handleChange} placeholder="email" required></input>
+                <input type='password' disabled={loading} name="password" value={values.password} onChange={handleChange} placeholder="senha" required></input>
+
+                <button type="submit">{loading ? <ThreeDots color="#FFFFFF" height={40} width={40} /> : 'Entrar'}</button>
 
             </LoginForm>
 
@@ -64,6 +103,9 @@ const LoginForm = styled.form`
  }
 
  button {
+    display: flex;
+    align-items:center;
+    justify-content: center;
     cursor:pointer;
     width: 300px;
     height: 45px;
@@ -73,6 +115,13 @@ const LoginForm = styled.form`
     border:none;
     color: #ffffff;
 
+ }
+
+ input:disabled {
+     background-color:#F2F2F2;
+ }
+ button:disabled {
+    filter: grayscale(40%);
  }
 
 

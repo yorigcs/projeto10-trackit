@@ -45,7 +45,6 @@ const SignUp = () => {
                         alert('Um erro desconhecido ocorreu, tente novamente!');
                         break;
                 }
-                console.log();
                 setLoading(false);
             }
         }
