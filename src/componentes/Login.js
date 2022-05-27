@@ -25,7 +25,8 @@ const Login = () => {
             try {
                 const resp = await axios.post('https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/auth/login',values);
                 setUserInfo(resp.data);
-                navigate('../hoje', {replace: true});
+
+                navigate('../habitos', {replace: true});
 
             } catch (err) {
                 switch(err.response.status) {
