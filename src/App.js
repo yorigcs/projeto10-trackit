@@ -9,10 +9,11 @@ import GlobalStyle  from './assets/globalStyles'
 
 function App() {
   const [userInfo,setUserInfo] = useState({});
+  const [progress,setProgress] = useState(0);
   return (
     <>
     <GlobalStyle />
-    <UserContext.Provider value={{userInfo,setUserInfo}}>
+    <UserContext.Provider value={{userInfo,setUserInfo, progress,setProgress}}>
     <BrowserRouter>
       <Routes>
         <Route path='/' element={<Login />} />

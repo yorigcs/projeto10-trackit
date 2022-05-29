@@ -5,16 +5,17 @@ import { RiDeleteBin6Line } from 'react-icons/ri'
 import { ThreeDots } from "react-loader-spinner";
 import UserContext from '../context/UserContext';
 import TopBar from './TopBar';
+import NavBar from './NavBar';
 const URL = 'https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits';
 
 const daysStatic = [
-    { dia: 'D', id: 1 },
-    { dia: 'S', id: 2 },
-    { dia: 'T', id: 3 },
+    { dia: 'D', id: 0 },
+    { dia: 'S', id: 1 },
+    { dia: 'T', id: 2 },
+    { dia: 'Q', id: 3 },
     { dia: 'Q', id: 4 },
-    { dia: 'Q', id: 5 },
-    { dia: 'S', id: 6 },
-    { dia: 'S', id: 7 }
+    { dia: 'S', id: 5 },
+    { dia: 'S', id: 6 }
 ];
 
 const Habits = () => {
@@ -22,8 +23,7 @@ const Habits = () => {
     const [showBox, setShowBox] = useState(false);
     const [habit, setHabit] = useState({ name: '', days: [] });
     const [myHabits, setMyHabits] = useState([]);
-    const [loading,setLoading] = useState(false);
-
+    const [loading, setLoading] = useState(false);
     const config = useMemo(() => {
         return {
             headers: {
@@ -43,7 +43,7 @@ const Habits = () => {
             }
         }
         getHabits()
-    }, [myHabits, config]);
+    }, [config]);
 
     // create habits
     const handleChange = (e) => {
@@ -55,8 +55,18 @@ const Habits = () => {
         setLoading(true);
         async function createHabit() {
             try {
-                await axios.post(URL, habit, config);
+                const respGet = await axios.post(URL, habit, config);
                 setLoading(false);
+                setHabit({ name: '', days: [] });
+                setShowBox(false);
+                if (respGet) {
+                    try {
+                        const resp = await axios.get(URL, config);
+                        setMyHabits(resp.data);
+                    } catch (err) {
+                        console.log(err.response.status);
+                    }
+                }
 
             } catch (err) {
                 console.log(err.response.status);
@@ -66,16 +76,25 @@ const Habits = () => {
         createHabit();
     };
 
+    const getMyHabits = () => {
+        if (myHabits.length > 0) {
+            return (
+                myHabits.map((habit) =>
+                    <RenderMyHabits key={habit.id} {...habit} config={config} setMyHabits={setMyHabits} />)
+            )
+        }
+        return <EmptyHabits>Você não tem nenhum hábito cadastrado ainda. Adicione um hábito para começar a trackear!</EmptyHabits>
+    };
 
     return (
         <>
-            <TopBar/>
+            <TopBar />
 
             <MainContent>
                 <CreateHabit>
                     <NewHabit>
                         <span>Meus Hábitos</span>
-                        <span onClick={() => { setShowBox(true) }}>+</span>
+                        <span onClick={() => { setShowBox(!showBox) }}>+</span>
                     </NewHabit>
                     {showBox
                         ? <FormCreateHabit onSubmit={handleSubmit}>
@@ -85,64 +104,67 @@ const Habits = () => {
                             </Days>
                             <Buttons>
                                 <button type='button' onClick={() => { setShowBox(false) }}>Cancelar</button>
-                                <button disabled={loading} type='submit'>{loading? <ThreeDots color="#FFFFFF" height={40} width={40} />: 'Salvar'}</button>
+                                <button disabled={loading} type='submit'>{loading ? <ThreeDots color="#FFFFFF" height={40} width={40} /> : 'Salvar'}</button>
                             </Buttons>
 
                         </FormCreateHabit>
                         : null}
                 </CreateHabit>
 
-                {myHabits.map((habit) => 
-                <RenderMyHabits key={habit.id} {...habit} config={config} setMyHabits={setMyHabits} />)}
+                {getMyHabits()}
+
             </MainContent>
+            <NavBar />
         </>
     )
 };
 
 const ListDay = ({ dia, id, habit, setHabit }) => {
-    const [isSelected, setIsSelected] = useState(false);
     const handleClick = (e) => {
         if (habit.days.some(id => id === Number(e.target.id))) {
             setHabit({ ...habit, days: habit.days.filter(id => id !== Number(e.target.id)) });
-            setIsSelected(!isSelected);
         } else {
             setHabit({ ...habit, days: [...habit.days, Number(e.target.id)] });
-            setIsSelected(!isSelected);
         }
-
     };
-
     return (
         <>
-            {isSelected
+            {habit.days.some((idDay) => idDay === id)
                 ? <Day selectColor='#FFFFFF' selectBackgColor='#CFCFCF' id={id} onClick={handleClick}>{dia}</Day>
                 : <Day id={id} onClick={handleClick}>{dia}</Day>}
         </>
     );
-
 };
 
-const RenderMyHabits = ({ id, name, days,config,setMyHabits}) => {
+const RenderMyHabits = ({ id, name, days, config, setMyHabits }) => {
 
     const handleDelete = (e) => {
-       if(window.confirm('Você tem certeza que gostaria de apagar esse hábito?')){
-           async function deleteHabit() {
-               try{
-                    await axios.delete(`${URL}/${e.currentTarget.id}`,config);
-                    setMyHabits([]);
-               } catch (err){
-                   console.log(err.response.status);
-               }
-           } 
-           deleteHabit();
-       }
-       
+
+        if (window.confirm('Você tem certeza que gostaria de apagar esse hábito?')) {
+            async function deleteHabit() {
+                try {
+                    const respDel = await axios.delete(`${URL}/${e.currentTarget.id}`, config);
+
+                    if (respDel) {
+                        try {
+                            const resp = await axios.get(URL, config);
+                            setMyHabits(resp.data);
+                        } catch (err) {
+                            console.log(err.response.status);
+                        }
+                    }
+                } catch (err) {
+                    console.log(err.response.status);
+                }
+            }
+            deleteHabit();
+        }
 
     };
     return (
         <Habit>
-            <IconDelete id={id} onClick={handleDelete}> <RiDeleteBin6Line  /> </IconDelete>
-           
+            <IconDelete id={id} onClick={handleDelete}> <RiDeleteBin6Line /> </IconDelete>
+
             <span>{name}</span>
             <Days>
                 {daysStatic.map((day) => {
@@ -157,6 +179,12 @@ const RenderMyHabits = ({ id, name, days,config,setMyHabits}) => {
 };
 
 /* CSS */
+
+const EmptyHabits = styled.div`
+    font-size: 18px;
+    color: #666666;
+    margin-top: 30px;
+`;
 
 const Habit = styled.div`
     position: relative;
@@ -174,6 +202,7 @@ const Habit = styled.div`
 `;
 
 const IconDelete = styled.div`
+    cursor:pointer;
     position: absolute;
     top: 10px;
     right: 10px;
@@ -182,14 +211,15 @@ const IconDelete = styled.div`
 
 
 const MainContent = styled.main`
-    background-color:#F2F2F2;
+    height:100vh;
+    background-color:#E5E5E5;
     box-sizing:border-box;
     padding: 20px;
 
 `;
 
 const CreateHabit = styled.div`
-    margin-top: 100px;
+    margin-top: 80px;
     
 `;
 
