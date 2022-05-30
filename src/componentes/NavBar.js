@@ -23,7 +23,7 @@ const NavBar = () => {
                 </Progressbar>
             </Link>
 
-            <Link to='/'><span>Histórico</span></Link>
+            <Link to='/historico'><span>Histórico</span></Link>
 
         </Footer>
     );

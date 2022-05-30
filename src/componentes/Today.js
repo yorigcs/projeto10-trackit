@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import styled from 'styled-components';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
@@ -14,30 +14,11 @@ const Today = () => {
     dayjs.locale('pt-br');
     let now = dayjs().format('dddd, DD/MM');
 
-    const { userInfo, progress } = useContext(UserContext);
-    const [todayHabits, setTodayHabits] = useState([]);
-    useEffect(() => { console.log(todayHabits) }, [todayHabits]);
-    const config = useMemo(() => {
-        return {
-            headers: {
-                Authorization: `Bearer ${userInfo.token}`
-            }
-        }
-    }, [userInfo.token]);
-
+    const { progress,todayHabits ,setTodayHabits, handleProgress, config } = useContext(UserContext);
+   
     useEffect(() => {
-        const getHabits = async () => {
-            try {
-                const resp = await axios.get(`${URL}/today`, config);
-                setTodayHabits(resp.data);
-
-            } catch (err) {
-                console.log(err);
-            }
-        };
-        getHabits();
-    }, [config])
-
+        handleProgress();
+    }, [handleProgress]);
 
     return (
         <Container>
@@ -47,7 +28,7 @@ const Today = () => {
 
                 {progress === 0
                     ? <SubTitle>Nenhum hábito concluído ainda</SubTitle>
-                    : <SubTitle color="#8FC549">{`${progress}% dos hábitos concluídos`}</SubTitle>}
+                    : <SubTitle color="#8FC549">{`${Math.floor(progress)}% dos hábitos concluídos`}</SubTitle>}
 
                 <Habits>
                     {todayHabits.map((habit) => <TodayHabit key={habit.id} {...habit} config={config} setTodayHabits={setTodayHabits}/>)}
@@ -155,7 +136,7 @@ const Habit = styled.li`
 `;
 
 const Check = styled.div`
-    pointer-events: ${props => props.disableClick || 'default'};
+    pointer-events: ${props => props.disableClick};
     cursor: pointer;
     color: white;
     font-size: 26px;

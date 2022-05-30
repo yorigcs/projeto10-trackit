@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 import axios from 'axios';
-import { useState, useEffect, useContext, useMemo } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { RiDeleteBin6Line } from 'react-icons/ri'
 import { ThreeDots } from "react-loader-spinner";
 import UserContext from '../context/UserContext';
@@ -19,18 +19,12 @@ const daysStatic = [
 ];
 
 const Habits = () => {
-    const { userInfo } = useContext(UserContext);
+    const { handleProgress, config } = useContext(UserContext);
     const [showBox, setShowBox] = useState(false);
     const [habit, setHabit] = useState({ name: '', days: [] });
     const [myHabits, setMyHabits] = useState([]);
     const [loading, setLoading] = useState(false);
-    const config = useMemo(() => {
-        return {
-            headers: {
-                Authorization: `Bearer ${userInfo.token}`
-            }
-        }
-    }, [userInfo.token]);
+
 
     //get myHabits
     useEffect(() => {
@@ -38,12 +32,13 @@ const Habits = () => {
             try {
                 const resp = await axios.get(URL, config);
                 setMyHabits(resp.data);
+                handleProgress();
             } catch (err) {
                 console.log(err.response.status);
             }
         }
         getHabits()
-    }, [config]);
+    }, [config, handleProgress]);
 
     // create habits
     const handleChange = (e) => {
@@ -63,6 +58,7 @@ const Habits = () => {
                     try {
                         const resp = await axios.get(URL, config);
                         setMyHabits(resp.data);
+                        handleProgress();
                     } catch (err) {
                         console.log(err.response.status);
                     }
@@ -80,7 +76,7 @@ const Habits = () => {
         if (myHabits.length > 0) {
             return (
                 myHabits.map((habit) =>
-                    <RenderMyHabits key={habit.id} {...habit} config={config} setMyHabits={setMyHabits} />)
+                    <RenderMyHabits key={habit.id} {...habit} config={config} setMyHabits={setMyHabits} handleProgress={handleProgress} />)
             )
         }
         return <EmptyHabits>Você não tem nenhum hábito cadastrado ainda. Adicione um hábito para começar a trackear!</EmptyHabits>
@@ -136,7 +132,7 @@ const ListDay = ({ dia, id, habit, setHabit }) => {
     );
 };
 
-const RenderMyHabits = ({ id, name, days, config, setMyHabits }) => {
+const RenderMyHabits = ({ id, name, days, config, setMyHabits,handleProgress }) => {
 
     const handleDelete = (e) => {
 
@@ -148,7 +144,11 @@ const RenderMyHabits = ({ id, name, days, config, setMyHabits }) => {
                     if (respDel) {
                         try {
                             const resp = await axios.get(URL, config);
-                            setMyHabits(resp.data);
+                            if(resp) {
+                                setMyHabits(resp.data);
+                                handleProgress();
+                            }
+                            
                         } catch (err) {
                             console.log(err.response.status);
                         }
