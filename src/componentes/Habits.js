@@ -38,7 +38,8 @@ const Habits = () => {
             }
         }
         getHabits()
-    }, [config, handleProgress]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     // create habits
     const handleChange = (e) => {
@@ -215,7 +216,7 @@ const MainContent = styled.main`
     background-color:#E5E5E5;
     box-sizing:border-box;
     padding: 20px;
-
+    
 `;
 
 const CreateHabit = styled.div`

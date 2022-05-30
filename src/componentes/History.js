@@ -7,7 +7,7 @@ import { useState, useEffect, useContext } from "react";
 import 'react-calendar/dist/Calendar.css';
 import UserContext from "../context/UserContext";
 import axios from "axios";
-import './teste.css'
+import './calendar.css'
 
 const URL = `https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits/history/daily`;
 const History = () => {
@@ -41,13 +41,11 @@ const History = () => {
     }, [config]);
 
     function tileClassName({ date, view }) {
-        // Add class to tiles in month view only
         if (view === 'month') {
-            // Check if a date React-Calendar wants to check is on the list of dates to add class to
             if (completeOrNot.incomplete.find(x=> x === dayjs(date).format("DD/MM/YYYY"))) {
-                return 'highlight';
+                return 'incomplete';
             } else if (completeOrNot.complete.find(x=> x === dayjs(date).format("DD/MM/YYYY"))) {
-                return 'done';
+                return 'complete';
             }
         }
     }
@@ -79,7 +77,6 @@ const MainContainer = styled.main`
     justify-content:center;
     padding:100px 0;
 `;
-
 
 
 export default History;

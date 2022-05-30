@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import { useState, useContext } from "react";
-import { Link,useNavigate } from "react-router-dom";
+import { useState, useContext, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { ThreeDots } from "react-loader-spinner";
 import axios from "axios";
 import UserContext from "../context/UserContext";
@@ -11,11 +11,20 @@ import logo from '../assets/logo.svg';
 const Login = () => {
     const [values, setValues] = useState({ email: '', password: '' });
     const [loading, setLoading] = useState(false);
-    const {setUserInfo} = useContext(UserContext);
+    const { setUserInfo } = useContext(UserContext);
     let navigate = useNavigate();
 
+    useEffect(() => {
+        const info = localStorage.getItem('userInfo');
+        if (info) {
+            setUserInfo(JSON.parse(info));
+            navigate('../habitos', { replace: true });
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     const handleChange = (e) => {
-        setValues({...values, [e.target.name]: e.target.value});
+        setValues({ ...values, [e.target.name]: e.target.value });
     };
 
     const handleSubmit = (e) => {
@@ -23,14 +32,14 @@ const Login = () => {
         setLoading(true);
         async function userLogin() {
             try {
-                const resp = await axios.post('https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/auth/login',values);
+                const resp = await axios.post('https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/auth/login', values);
                 setUserInfo(resp.data);
-
-                navigate('../habitos', {replace: true});
+                localStorage.setItem('userInfo', JSON.stringify(resp.data));
+                navigate('../habitos', { replace: true });
 
             } catch (err) {
-                switch(err.response.status) {
-                    case 401:   
+                switch (err.response.status) {
+                    case 401:
                         alert('O email ou a senha digitada estão incorretos');
                         break;
                     default:

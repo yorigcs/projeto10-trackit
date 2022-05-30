@@ -18,7 +18,8 @@ const Today = () => {
    
     useEffect(() => {
         handleProgress();
-    }, [handleProgress]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <Container>
@@ -71,10 +72,10 @@ const TodayHabit = ({ id, name, done, currentSequence, highestSequence, setToday
     };
 
     return (
-        <Habit>
+        <Habit color={currentSequence === highestSequence ? '#8FC549' : '#666666'}>
             <h3>{name}</h3>
-            <p>{`Sequência atual: ${currentSequence} dias`}</p>
-            <p>{`Seu recorde: ${highestSequence} dias`}</p>
+            <p>Sequência atual: <span>{`${currentSequence} dias`}</span></p>
+            <p>Seu recorde: <span>{`${highestSequence} dias`}</span></p>
             {done 
             ? <Check disableClick={loading ? 'none' : 'default'} backgColor='#8FC549' id={id} onClick={handleClick}> <BsCheckLg /> </Check>
             : <Check disableClick={loading ? 'none' : 'default'} id={id} onClick={handleClick}> <BsCheckLg /> </Check>}
@@ -132,6 +133,9 @@ const Habit = styled.li`
         margin: 4px 0;
         font-size: 12px;
         color: #666666;
+    }
+    p > span {
+        color: ${props => props.color};
     }
 `;
 

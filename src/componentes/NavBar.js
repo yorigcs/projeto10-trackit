@@ -32,7 +32,6 @@ const NavBar = () => {
 
 
 const Footer = styled.footer`
-
     box-sizing:border-box;
     display: flex;
     justify-content:space-between;

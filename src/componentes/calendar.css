@@ -1,11 +1,9 @@
-.highlight {
-
-
+.incomplete {
     background-color: #8cc654;
     border-radius: 50%;
  }
 
- .done {
+ .complete {
      
      background-color: #ea5766;
     border-radius: 50%;
