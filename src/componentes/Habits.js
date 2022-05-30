@@ -4,6 +4,7 @@ import { useState, useEffect, useContext } from 'react';
 import { RiDeleteBin6Line } from 'react-icons/ri'
 import { ThreeDots } from "react-loader-spinner";
 import UserContext from '../context/UserContext';
+import { useNavigate } from 'react-router-dom';
 import TopBar from './TopBar';
 import NavBar from './NavBar';
 const URL = 'https://mock-api.bootcamp.respondeai.com.br/api/v2/trackit/habits';
@@ -24,7 +25,7 @@ const Habits = () => {
     const [habit, setHabit] = useState({ name: '', days: [] });
     const [myHabits, setMyHabits] = useState([]);
     const [loading, setLoading] = useState(false);
-
+    const navigate = useNavigate();
 
     //get myHabits
     useEffect(() => {
@@ -34,7 +35,16 @@ const Habits = () => {
                 setMyHabits(resp.data);
                 handleProgress();
             } catch (err) {
-                console.log(err.response.status);
+                switch (err.response.status) {
+                    case 401:
+                        alert('Sua sessão expirou!');
+                        localStorage.removeItem('userInfo');
+                        navigate('../', { replace: true });
+                        break;
+                    default:
+                        alert('Um erro desconhecido ocorreu, tente novamente!');
+                        break;
+                }
             }
         }
         getHabits()
