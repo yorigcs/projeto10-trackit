@@ -22,8 +22,11 @@ function App() {
   };
 
   useEffect(() => {
-    let total = (todayHabits.filter(habit => habit.done === true).length / todayHabits.length) * 100;
-    setProgress(total);
+    if(todayHabits.length >0) {
+      let total = (todayHabits.filter(habit => habit.done === true).length / todayHabits.length) * 100;
+      setProgress(total);
+    }
+    
   }, [todayHabits, setProgress]);
 
   const handleProgress = async () => {
